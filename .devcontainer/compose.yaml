@@ -1,0 +1,13 @@
+# for devcontainer
+version: '3'
+
+services:
+  react-app:
+    build:
+      target: devcontainer
+      context: ./
+      dockerfile: Dockerfile
+    image: react-app:latest
+    container_name: react-app-container
+    ports:
+      - 80:8080 # localport:dockerport

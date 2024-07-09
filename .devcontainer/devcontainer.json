@@ -1,0 +1,32 @@
+{
+  "name": "dev-container-test", // 任意
+  "dockerComposeFile": [
+    "../compose.yaml",
+    "compose.yaml"
+  ],
+  "service": "react-app", // compose.yamlのサービス名
+  "workspaceFolder": "/app",
+  // コンテナを起動したままにする
+  "overrideCommand": true,
+  // rvest.vscode-prettier-eslintに使うパッケージをinstall
+  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4",
+  // DevContainer起動時
+  "postStartCommand": ["echo", "Hello, DevContainer"],
+  // DevContainerに既存コンテナをattach時
+  "postAttachCommand": ["echo", "Hello, DevContainer"],
+  // DevContainerのビルド前，実行前にローカルで実行されるコマンド
+  "initializeCommand": ["echo", "Starting DevContainer..."],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rvest.vs-code-prettier-eslint",
+        "formulahendry.auto-rename-tag",
+        "DavidAnson.vscode-markdownlint",
+        "exiasr.hadolint",
+        "oderwat.indent-rainbow",
+        "Orta.vscode-jest",
+        "ionutvmi.path-autocomplete"
+      ]
+    }
+  }
+}

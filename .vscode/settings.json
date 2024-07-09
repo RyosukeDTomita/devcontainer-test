@@ -1,0 +1,20 @@
+{
+  "markdown-pdf.highlightStyle": "solarized-dark.css",
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+    "editor.formatOnSave": true,
+  },
+  // 抑止設定
+  "markdownlint.config": {
+    "MD010": false, // タブ
+    "MD013": false // 長い行
+  },
+
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.formatOnPaste": false, // required
+    "editor.formatOnType": false, // required
+    "editor.formatOnSave": true, // optional
+    "editor.formatOnSaveMode": "file" // required to format on save
+  },
+}
