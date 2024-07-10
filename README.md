@@ -169,6 +169,25 @@ RUN npm install && npm run build
 
 必要そうなパッケージをまとめた[install-pkg.sh](./install-pkg.sh)を作成し，postCreateCommandに追加する。
 
-###
+### ディレクトリのマウント
+
+- ファイル単体でのマウントはできない。
+
+```json
+{
+  "name": "dev-container-test",
+  "dockerComposeFile": [
+    "../compose.yaml",
+    "compose.yaml"
+  ],
+  "service": "react-app",
+  "workspaceFolder": "/app",
+  "overrideCommand": true,
+  "mounts": [
+    "source=~/.aws,target=/home/root/.aws,type=bind" // ~/.awsをマウントできる
+  ],
+```
+
+- ~/.gitconfigはデフォルトで，DevContainer上のホームディレクトリにコピーされている。
 
 ---
