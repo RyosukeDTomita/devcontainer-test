@@ -5,7 +5,7 @@ package_list="net-tools \
   rsync \
   unzip \
   zip \
-  vim-tiny \
+  vim \
   jq \
   less \
   git \
