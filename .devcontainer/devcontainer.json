@@ -8,9 +8,9 @@
   "workspaceFolder": "/app",
   "overrideCommand": true, // コンテナを起動したままにする DockerfileのCMDで永続するコマンドを実行しているなら不要
   // rvest.vscode-prettier-eslintに使うパッケージをinstall
-  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4",
-  "postStartCommand": ["echo", "Hello, DevContainer"], // DevContainer起動時
-  "postAttachCommand": ["echo", "Hello, DevContainer"], // DevContainerに既存コンテナをattach時
+  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4 && ./install-pkg.sh",
+  "postStartCommand": "echo Hello, DevContainer", // DevContainer起動時
+  "postAttachCommand": "echo Hello, DevContainer", // DevContainerに既存コンテナをattach時
   "initializeCommand": ["echo", "Starting DevContainer..."], // DevContainerのビルド前，実行前にローカルで実行されるコマンド
   "customizations": {
     "vscode": {

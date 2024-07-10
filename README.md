@@ -165,4 +165,10 @@ RUN npm install && npm run build
   "initializeCommand": ["echo", "Starting DevContainer..."], // DevContainerのビルド前，実行前にローカルで実行されるコマンド
 ```
 
+#### installスクリプトを使う
+
+必要そうなパッケージをまとめた[install-pkg.sh](./install-pkg.sh)を作成し，postCreateCommandに追加する。
+
+###
+
 ---
