@@ -53,6 +53,7 @@ code ~/devcontainer-test
 ---
 
 ## DOCUMENTATION
+このリポジトリで学べること一覧。
 
 ### service名の指定
 
@@ -83,6 +84,29 @@ services:
   ],
   "service": "react-app", // compose.yamlのサービス名
 ```
+
+### dotfilesを使う
+
+- ~/.bashrc等をDev Containersに持ち込む機能。
+- **VSCodeの個人用のsettings.json**に記載する。
+- 設定は自分のGitHub上で管理している`dotfiles`リポジトリに合わせて変更すること。
+
+```json
+  // Dev Containersでdotfilesを使う。
+  // NOTE: .gitconfigは何もしなくてもDev ContainersのHOMEディレクトリにコピーされる。
+  "dotfiles.repository": "https://github.com/RyosukeDTomita/dotfiles.git",
+  "dotfiles.targetPath": "~/dotfiles",
+  "dotfiles.installCommand": "install.sh", // ~/dotfilesのrepository topからみたスクリプトのパスを指定する。
+```
+
+> [!NOTE]
+> `dotfiles.installCommand`には~/dotfilesのrepository topから見たスクリプトのパスを指定する。
+> 指定しないと以下のファイル名が実行される。
+> - install.sh
+> - install
+> - bootstrap.sh
+> - setup.sh
+> - setup
 
 ### Extensions関連
 
