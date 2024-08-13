@@ -78,6 +78,10 @@ code ~/devcontainer-test
 > - setup.sh
 > - setup
 
+#### dotfiles TIPS
+
+- Dev Containerの環境では，`REMOTE_CONTAINERS=true`が環境変数に定義されているのでこれを使ってDev Containerかどうかを判別できる。 --> dotfilesを使う時だけ有効にしたい設定とかdotfilesで書ける。
+
 ---
 
 ### Extensions関連
