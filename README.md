@@ -55,37 +55,7 @@ code ~/devcontainer-test
 ## DOCUMENTATION
 このリポジトリで学べること一覧。
 
-### service名の指定
-
-- compose.yamlのサービス名をdevcontainer.jsonのserviceを同じにする必要がある。
-
-```yaml
-# compose.yaml
-version: '3'
-
-services:
-  react-app: # devcontainer.jsonに指定するサービス名
-    build:
-      target: devcontainer
-      context: ./
-      dockerfile: Dockerfile
-    image: react-img-devcontainer:latest
-    container_name: react-container-devcontainer
-    ports:
-      - 80:8080 # localport:dockerport
-```
-
-```json
-{
-  "name": "dev-container-test", // 任意の名前
-  "dockerComposeFile": [
-    "../compose.yaml",
-    "compose.yaml"
-  ],
-  "service": "react-app", // compose.yamlのサービス名
-```
-
-### dotfilesを使う
+### dotfilesを使って開発環境に必要な設定ファイルを持ち込む
 
 - ~/.bashrc等をDev Containersに持ち込む機能。
 - **VSCodeの個人用のsettings.json**に記載する。
@@ -100,13 +70,15 @@ services:
 ```
 
 > [!NOTE]
-> `dotfiles.installCommand`には~/dotfilesのrepository topから見たスクリプトのパスを指定する。
-> 指定しないと以下のファイル名が実行される。
+> `dotfiles.installCommand`には~/dotfilesのrepository topから見たスクリプトのパスを指定する。--> dotfilesのGitHub Repositoryにinstall.shは配置が必要。
+> 指定しない場合のデフォルトファイル名は以下が認識される。
 > - install.sh
 > - install
 > - bootstrap.sh
 > - setup.sh
 > - setup
+
+---
 
 ### Extensions関連
 
@@ -114,13 +86,13 @@ services:
 - devcontainer.jsonと.vscode/settings.json両方に記載ができる。
 - 基本は.vscode/settings.json配下で良いと思っているが一部コンテナ名等を使う場合にはdevcontainer.jsonに記載したほうが楽かも。
 
-#### Extensionsを追加する
+#### Extensionsを追する方法
 
 例えば，[peacock](https://marketplace.visualstudio.com/items?itemName=johnpapa.vscode-peacock)をインストールしたい場合には，インストールコマンド`ext install johnpapa.vscode-peacock`にて記載される`johnpapa.vscode-peacock`をdevcontainer.jsonに記載すればよい。
 
 #### DevContainerに自分だけが使用するExtensionsを持ち込む
 
-- 個人用のsettings.jsonに記載する。.vscode/settings.jsonではないので注意。
+- **個人用のsettings.json**に記載する。.vscode/settings.jsonではないので注意。
 
 ```json
   // Devcontainerの個人的に使うExtensionsを入れる。
@@ -130,7 +102,10 @@ services:
 }
 ```
 
+---
+
 ### Dockerfileのマルチステージビルドを使ってDevContainer用の環境を作る
+
 - Dockerfileを使う場合にはdevcontainer.jsonでtargetの指定ができる。
 - 一方，compose.yamlを使う場合には別のcompose.yamlを準備する必要がある。
 
@@ -167,10 +142,41 @@ COPY ./react-default-app .
 RUN npm install && npm run build
 ```
 
+> [!NOTE]
+> - compose.yamlのサービス名をdevcontainer.jsonのserviceを同じにする必要がある。
+
+```yaml
+# compose.yaml
+version: '3'
+
+services:
+  react-app: # devcontainer.jsonに指定するサービス名
+    build:
+      target: devcontainer
+      context: ./
+      dockerfile: Dockerfile
+    image: react-img-devcontainer:latest
+    container_name: react-container-devcontainer
+    ports:
+      - 80:8080 # localport:dockerport
+```
+
+```json
+{
+  "name": "dev-container-test", // 任意の名前
+  "dockerComposeFile": [
+    "../compose.yaml",
+    "compose.yaml"
+  ],
+  "service": "react-app", // compose.yamlのサービス名
+```
+
 > [参考1](https://github.com/microsoft/vscode-remote-release/issues/7810)
 > [参考2](https://stackoverflow.com/questions/78421879/devcontainer-docker-compose-best-practice)
 
-### 各種コマンドを使う
+---
+
+### 各種コマンドの使い方
 
 ```json
 {
@@ -191,11 +197,13 @@ RUN npm install && npm run build
 
 #### installスクリプトを使う
 
-必要そうなパッケージをまとめた[install-pkg.sh](./install-pkg.sh)を作成し，postCreateCommandに追加する。
+必要そうなパッケージをまとめた[install-pkg.sh](./install-pkg.sh)を作成し，postCreateCommandで実行する。
+
+---
 
 ### ディレクトリのマウント
 
-- ファイル単体でのマウントはできない。
+- ファイル単体でのマウントはできないぽい。設定ファイルとかは前述のdotfilesを使って共有する。
 
 ```json
 {
@@ -211,7 +219,4 @@ RUN npm install && npm run build
     "source=~/.aws,target=/home/root/.aws,type=bind" // ~/.awsをマウントできる
   ],
 ```
-
-- ~/.gitconfigはデフォルトで，DevContainer上のホームディレクトリにコピーされている。
-
 ---
