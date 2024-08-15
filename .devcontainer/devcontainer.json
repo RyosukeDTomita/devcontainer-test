@@ -11,7 +11,7 @@
     "source=~/.aws,target=/home/root/.aws,type=bind"
   ],
   // rvest.vscode-prettier-eslintに使うパッケージと開発用パッケージをinstall
-  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4 && ./install-pkg.sh",
+  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4 && ./.devcontainer/install-pkg.sh",
   "postStartCommand": "echo Hello, DevContainer", // DevContainer起動時
   "postAttachCommand": "echo Hello, DevContainer", // DevContainerに既存コンテナをattach時
   "initializeCommand": ["echo", "Starting DevContainer..."], // DevContainerのビルド前，実行前にローカルで実行されるコマンド
