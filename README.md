@@ -90,23 +90,23 @@ Dev Containerを使うにあたってのtips等をまとめる。
 
 - **compose.yamlを使わず**，Dockerfile使う場合にはdevcontainer.jsonでtargetの指定ができる。
 
-```Dockerfile
-FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm AS devcontainer # target名を指定する
-```
+  ```Dockerfile
+  FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm AS devcontainer # target名を指定する
+  ```
 
 - .devcontainer/devcontainer.jsonでtargetを指定する
 
   > A string that specifies a Docker image build target that should be passed when building a Dockerfile. Defaults to not set. For example: "build": { "target": "development" } [^1]
 
-```json
-{
-  "name": "dev-container-test",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "target": "devcontainer"
-  },
-}
-```
+  ```json
+  {
+    "name": "dev-container-test",
+    "build": {
+      "dockerfile": "Dockerfile",
+      "target": "devcontainer"
+    },
+  }
+  ```
 
 #### compose.yamlを使ってtargetを指定
 
@@ -232,7 +232,7 @@ devcontainer.jsonでportを開放する方法は3つある。
 > 2025年3月に動作検証したところ，ローカルのVS CodeではportAttributeのみでportフォワーディングが可能だった。
 > しかし，[GitHub Codespaces](https://github.com/features/codespaces)を使う場合には`portAttributes`のみではportフォワーディングがされなかった。
 >
-> `portForwards`のみ
+> `portAttributes`のみ
 > ![portAttributesのみ](./assets/portForward_only.png)
 > `forwardPorts`も追加すると自動的にportフォワーディングされる
 > ![portAttributesとforwardPorts](./assets/forwardPorts.png)
