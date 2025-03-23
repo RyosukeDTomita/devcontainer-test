@@ -1,5 +1,5 @@
 #!/bin/bash
-# TODO: apt installをcacheする
+# featuresでほぼインストールできそうなので現状使ってない
 package_list="iputils-ping \
   vim \
   dnsutils \

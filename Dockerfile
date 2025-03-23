@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm AS dependencies
 WORKDIR /app/
 
-COPY ./react-app/package.json ./react-app/yarn.lock .
+COPY ./react-app/package.json ./react-app/yarn.lock ./
 RUN yarn install --production=true && yarn cache clean
 
 COPY . .
-#RUN yarn build
+RUN cd react-app && yarn build
 
 FROM dependencies AS devcontainer
 
