@@ -1,6 +1,4 @@
 # for devcontainer
-version: '3'
-
 services:
   react-app:
     build:
@@ -11,3 +9,4 @@ services:
     container_name: react-container-devcontainer
     volumes:
       - ./:/app
+      - ./.devcontainer/cache:/cache
