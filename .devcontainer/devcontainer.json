@@ -1,24 +1,32 @@
 {
-  "name": "dev-container-test", // 任意
+  "name": "dev-container-test", // 任意の値
   "dockerComposeFile": [
     "../compose.yaml",
     "compose.yaml"
   ],
   "service": "react-app", // compose.yamlのサービス名
   "workspaceFolder": "/app",
-  "overrideCommand": true, // コンテナを起動したままにする DockerfileのCMDで永続するコマンドを実行しているなら不要
+  "overrideCommand": true, // NOTE: DockerfileのCMDで永続コマンド(e.g. nginx)等を指定可能な場合でも，こちらのオプションを使い，postStartCommandでサービスを起動すべき。なぜなら，DockerfileのCMDの永続コマンドを再起動するにはコンテナの再ビルドが必要なため，非効率。
+  // "forwardPorts" : [5173, 5173],
+  "portsAttributes": {
+    "5173:5173": {
+      "label": "Vite application",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    }
+  },
+  "postStartCommand": "cd react-app/ && yarn dev --host 0.0.0.0",
   "mounts": [
-    "source=~/.aws,target=/home/root/.aws,type=bind"
+    "source=~/.aws,target=/home/node/.aws,type=bind",
   ],
   // rvest.vscode-prettier-eslintに使うパッケージと開発用パッケージをinstall
-  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4 && ./.devcontainer/install-pkg.sh",
-  "postStartCommand": "echo Hello, DevContainer", // DevContainer起動時
-  "postAttachCommand": "echo Hello, DevContainer", // DevContainerに既存コンテナをattach時
+  "postCreateCommand": "/app/.devcontainer/install-pkg.sh",
+  "postAttachCommand": "echo Attach, DevContainer", // DevContainerに既存コンテナをattach時
   "initializeCommand": ["echo", "Starting DevContainer..."], // DevContainerのビルド前，実行前にローカルで実行されるコマンド
   "customizations": {
     "vscode": {
       "extensions": [
-        "rvest.vs-code-prettier-eslint",
+	"esbenp.prettier-vscode",
         "formulahendry.auto-rename-tag",
         "DavidAnson.vscode-markdownlint",
         "exiasr.hadolint",

@@ -5,121 +5,114 @@
 ## INDEX
 
 - [ABOUT](#about)
-- [LICENSE](#license)
 - [ENVIRONMENT](#environment)
 - [PREPARING](#preparing)
-- [DOCUMENTATION](#DOCUMENTATION)
+- [HOW TO USE](#how-to-use)
+- [Dev Containers Tips](#dev-containers-tips)
 
 ---
 
 ## ABOUT
 
-Trying out the [DevContainer](https://code.visualstudio.com/docs/devcontainers/containers) feature.
+Trying out the [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) feature.
 
 ### What is the benefit of DevContainer
 
-- DevContainerを使うと，Dockerコンテナ内でVSCodeを開ける
-  - 起動しているコンテナでVSCodeを起動する --> `Attach to running container`
-  - VSCodeからコンテナをビルドして起動させる。`Reopen in container` or `Rebuild and Reopen in container`
-- VSCodeのExtensions等も一括で管理できるので環境構築が楽になる
-
----
-
-## LICENSE
-
-[un license](./LICENSE)
+- Dev Containersを使うと，Docker Container内でVS Codeを開くことができ，コンテナ内のソースコードを直接編集できる
+- Dev Containers起動時に設定ファイルに記載のあるVS CodeのExtensions等も一括でインストールできる --> チームで開発環境を統一しやすい
+- Dockerfileやcompose.yamlを汚さずにツールのインストールや設定変更ができる
 
 ---
 
 ## ENVIRONMENT
-- See [Dockerfile](./Dockerfile)
+
+- React with Vite
+- nginx
 
 ---
 
 ## PREPARING
 
-1. install Docker, VSCode
+1. install Docker, [VS Code](https://code.visualstudio.com/)
 2. clone this repository
-3. install [DevContainer](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)(VSCode Extensions)
-4. In VSCode, from the command palette, select `Reopen in Container`
+3. install [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) VS Code Extensions
+
+---
+
+## HOW TO USE
+
+### Dev Container
 
 ```shell
 code ~/devcontainer-test
 ```
 
+In VS Code, from the command palette, select `Reopen in Container`
+
+![reopen in container](./assets/reopen_in_container.png)
+
 > [!NOTE]
-> コンテナの再ビルドを行いたい場合は，`Rebuild and Reopen in Container`を使う。
+> To rebuild Dev Container，use `Rebuild and Reopen in Container` or `Rebuild without cache and Reopen in Container`.
 
----
+![rebuild container](./assets/rebuild_container.png)
 
-## DOCUMENTATION
-このリポジトリで学べること一覧。
+> [!WARNING]
+> When an error occurs during Dev Containers build, clearing the cache and rebuilding may solve the problem.
+>
+> ```shell
+> docker rm $(docker ps -a -q)
+> docker rmi $(docker images -q)
+> docker builder prune
+> ```
 
-### dotfilesを使って開発環境に必要な設定ファイルを持ち込む
+### deploy
 
-- ~/.bashrc等をDev Containersに持ち込む機能。
-- **VSCodeの個人用のsettings.json**に記載する。
-- 設定は自分のGitHub上で管理している`dotfiles`リポジトリに合わせて変更すること。
+deploy react app with nginx.
 
-```json
-  // Dev Containersでdotfilesを使う。
-  // NOTE: .gitconfigは何もしなくてもDev ContainersのHOMEディレクトリにコピーされる。
-  "dotfiles.repository": "https://github.com/RyosukeDTomita/dotfiles.git",
-  "dotfiles.targetPath": "~/dotfiles",
-  "dotfiles.installCommand": "install.sh", // ~/dotfilesのrepository topからみたスクリプトのパスを指定する。
+```shell
+docker compose up
 ```
 
-> [!NOTE]
-> `dotfiles.installCommand`には~/dotfilesのrepository topから見たスクリプトのパスを指定する。--> dotfilesのGitHub Repositoryにinstall.shは配置が必要。
-> 指定しない場合のデフォルトファイル名は以下が認識される。
-> - install.sh
-> - install
-> - bootstrap.sh
-> - setup.sh
-> - setup
-
-#### dotfiles TIPS
-
-- Dev Containerの環境では，`REMOTE_CONTAINERS=true`が環境変数に定義されているのでこれを使ってDev Containerかどうかを判別できる。 --> dotfilesを使う時だけ有効にしたい設定とかdotfilesで書ける。
+go to [http://localhost:80](http://localhost:80)
 
 ---
 
-### Extensions関連
+## Dev Containers Tips
 
-#### 拡張機能の設定ファイルをどこにおくか
-- devcontainer.jsonと.vscode/settings.json両方に記載ができる。
-- 基本は.vscode/settings.json配下で良いと思っているが一部コンテナ名等を使う場合にはdevcontainer.jsonに記載したほうが楽かも。
+Dev Containerを使うにあたってのtips等をまとめる。
 
-#### Extensionsを追する方法
+### Multi Stage build使ってDev Containers用の環境を作る
 
-例えば，[peacock](https://marketplace.visualstudio.com/items?itemName=johnpapa.vscode-peacock)をインストールしたい場合には，インストールコマンド`ext install johnpapa.vscode-peacock`にて記載される`johnpapa.vscode-peacock`をdevcontainer.jsonに記載すればよい。
+基本的にコンテナにデプロイ時に不必要なものは含めたくないので，Multi Stage buildを使ってDev Containers用の環境を作ることが推奨される。
 
-#### DevContainerに自分だけが使用するExtensionsを持ち込む
+#### Dockerfileでtargetを指定
 
-- **個人用のsettings.json**に記載する。.vscode/settings.jsonではないので注意。
+- **compose.yamlを使わず**，Dockerfile使う場合にはdevcontainer.jsonでtargetの指定ができる。
+
+```Dockerfile
+FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm AS devcontainer # target名を指定する
+```
+
+- .devcontainer/devcontainer.jsonでtargetを指定する
+
+  > A string that specifies a Docker image build target that should be passed when building a Dockerfile. Defaults to not set. For example: "build": { "target": "development" } [^1]
 
 ```json
-  // Devcontainerの個人的に使うExtensionsを入れる。
-  "dev.containers.defaultExtensions": [
-    "formulahendry.auto-rename-tag",
-  ],
+{
+  "name": "dev-container-test",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "target": "devcontainer"
+  },
 }
 ```
 
----
+#### compose.yamlを使ってtargetを指定
 
-### Dockerfileのマルチステージビルドを使ってDevContainer用の環境を作る
-
-- Dockerfileを使う場合にはdevcontainer.jsonでtargetの指定ができる。
-- 一方，compose.yamlを使う場合には別のcompose.yamlを準備する必要がある。
-
-> [!NOTE]
-> compose.yamlの優先順位は.devcontainer/compose.yamlが優先される。
+compose.yamlを使う場合には`target`をcompose.yaml側で指定するためにDev Containers用に`.devcontainer/compose.yaml`を作成する必要がある。[^2]，[^3]
 
 ```yaml
-# for devcontainer
-version: '3'
-
+# compose.yaml
 services:
   react-app:
     build:
@@ -128,42 +121,14 @@ services:
       dockerfile: Dockerfile
     image: react-img-devcontainer:latest
     container_name: react-container-devcontainer
-    ports:
-      - 80:8080 # localport:dockerport
 ```
 
-```
-# DevContainer
-FROM node:20-bullseye AS devcontainer # targetに指定する値
-WORKDIR /app
-COPY . .
-RUN cd react-default-app && npm install
-
-# Build Image
-FROM node:20-bullseye AS build
-WORKDIR /app
-COPY ./react-default-app .
-RUN npm install && npm run build
+```Dockerfile
+FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm AS devcontainer # target名を指定する
 ```
 
 > [!NOTE]
-> - compose.yamlのサービス名をdevcontainer.jsonのserviceを同じにする必要がある。
-
-```yaml
-# compose.yaml
-version: '3'
-
-services:
-  react-app: # devcontainer.jsonに指定するサービス名
-    build:
-      target: devcontainer
-      context: ./
-      dockerfile: Dockerfile
-    image: react-img-devcontainer:latest
-    container_name: react-container-devcontainer
-    ports:
-      - 80:8080 # localport:dockerport
-```
+> compose.yamlの`services`名をdevcontainer.jsonの`service`に指定する。
 
 ```json
 {
@@ -173,14 +138,100 @@ services:
     "compose.yaml"
   ],
   "service": "react-app", // compose.yamlのサービス名
+}
 ```
-
-> [参考1](https://github.com/microsoft/vscode-remote-release/issues/7810)
-> [参考2](https://stackoverflow.com/questions/78421879/devcontainer-docker-compose-best-practice)
 
 ---
 
-### 各種コマンドの使い方
+### Dev Containers用の公式イメージを使う
+
+[Dev Containers公式イメージ](https://github.com/devcontainers/images/tree/main/src)がいくつかの言語ではサポートされている。
+
+> [!NOTE]
+>
+> 例えば，[base-debian](https://github.com/devcontainers/images/blob/main/src/base-debian/.devcontainer/Dockerfile)は[builderpack-deps](https://hub.docker.com/_/buildpack-deps)をベースにして作成されている。
+> builderpack-depsとは，ビルド時に必要なパッケージをまとめたイメージ。
+> > A collection of common build dependencies used for installing various modules, e.g., gems.[^4]
+
+---
+
+### dotfilesをDev Containersに持ち込む
+
+> [!NOTE]
+> dotfilesは設定ファイルやスクリプト等をまとめたリポジトリのこと。
+> e.g. .bashrc, .gitconfig, .vimrc, etc.
+
+**VSCodeの個人用のsettings.json**に以下を参考に記載することでdotfilesをDev Containersに持ち込むことができる。[^5]
+
+> [!NOTE]: .gitconfigは何もしなくてもDev ContainersのHOMEディレクトリにコピーされる。
+
+```json
+  // Dev Containersでdotfilesを使う。
+  "dotfiles.repository": "https://github.com/RyosukeDTomita/dotfiles.git",  // fixme
+  "dotfiles.targetPath": "~/dotfiles", // fixme
+  "dotfiles.installCommand": "install.sh", // fixme ~/dotfilesのrepository topからみたスクリプトのパスを指定する。
+```
+
+> [!NOTE]
+> `dotfiles.installCommand`には~/dotfilesのrepository topから見たスクリプトのパスを指定する。
+> そのため，dotfilesのGitHub Repositoryにinstall.shは配置が必要。[自分のdotfilesのinstall.sh](https://github.com/RyosukeDTomita/dotfiles/blob/main/install.sh)
+
+> [!NOTE]
+> `dotfiles.installCommand`を指定しない場合にはデフォルトのファイル名として以下が存在すればdotfilesのinstallが実行されるとVS Codeの設定画面に記載がある。
+>
+> ![default install script name](./assets/default_install_script.png)
+
+#### dotfiles TIPS
+
+Dev Containerの環境では，`REMOTE_CONTAINERS=true`が環境変数に定義されており，これを使ってDev Containerかどうかを判別できるためローカル用とDev Containers用で処理を分けることができる。[dotfilesのinstall scriptでREMOTE_CONTAINERS=trueで分岐する例](https://qiita.com/sigma_devsecops/items/c40031fc05eeb0811410)
+
+---
+
+### VS Code ExtensionsをDev Containersに持ち込む
+
+#### Extensionsの設定をどこに記載するか
+
+- devcontainer.jsonと.vscode/settings.json両方に記載ができる。
+- 基本は.vscode/settings.json配下に設定を記載するで良いと思っている。
+
+#### Extensionsを追加する方法
+
+Extension IDを.devcontainer/devcontainer.jsonに記載する。
+![extension id](./assets/extensionid.png)
+
+```json
+  "extensions": [
+    "formulahendry.auto-rename-tag",
+  ],
+```
+
+#### DevContainerに自分だけが使用するExtensionsを持ち込む
+
+- **個人用のsettings.json**に記載することで，リポジトリの設定を変更せずにExtensionsを追加できる。
+
+```json
+  // Dev containersに個人的に使うExtensionsを入れる。
+  "dev.containers.defaultExtensions": [
+    "vscodevim.vim"
+  ],
+```
+
+---
+
+### portを開放する設定比較
+
+devcontainer.jsonでportを開放する方法は3つある。
+
+- `addPort`は非推奨。`forwardPorts`を使う方が良い。
+  > In most cases, we recommend using the new forwardPorts property. [^6]
+- `forwardPorts`を使うことで，コンテナのポートをローカルにフォワードすることができる。
+- `portAttribute`を使うことで，portに説明をつけることができる。
+
+---
+
+### サービスをビルドなしで再起動可能にする
+
+Dev Containersにはコンテナのイベントをトリガーしてコマンドを実行する機能がある。[^7]
 
 ```json
 {
@@ -191,7 +242,7 @@ services:
   ],
   "service": "react-app",
   "workspaceFolder": "/app",
-  "overrideCommand": true, // コンテナを起動したままにする DockerfileのCMDで永続するコマンドを実行しているなら不要
+  "overrideCommand": true, // コンテナを起動Gしたままにする DockerfileのCMDで永続するコマンドを実行しているなら不要
   // rvest.vscode-prettier-eslintに使うパッケージをinstall
   "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4",
   "postStartCommand": ["echo", "Hello, DevContainer"], // DevContainer起動時
@@ -223,4 +274,20 @@ services:
     "source=~/.aws,target=/home/root/.aws,type=bind" // ~/.awsをマウントできる
   ],
 ```
+
 ---
+
+### References
+
+[^1]: <https://containers.dev/implementors/json_reference/#general-properties>
+
+[^2]: <https://github.com/microsoft/vscode-remote-release/issues/7810>
+
+[^3]: <https://stackoverflow.com/questions/78421879/devcontainer-docker-compose-best-practice>
+
+[^4]: <https://hub.docker.com/_/buildpack-deps>
+
+[^5]: <https://code.visualstudio.com/docs/devcontainers/containers#_personalizing-with-dotfile-repositories>
+
+[^6]: <https://containers.dev/implementors/json_reference/#image-specific>
+<https://containers.dev/implementors/json_reference/#lifecycle-scripts>
