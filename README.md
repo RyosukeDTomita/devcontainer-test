@@ -21,6 +21,7 @@ Trying out the [Dev Containers](https://code.visualstudio.com/docs/devcontainers
 - Dev Containersを使うと，Docker Container内でVS Codeを開くことができ，コンテナ内のソースコードを直接編集できる
 - Dev Containers起動時に設定ファイルに記載のあるVS CodeのExtensions等も一括でインストールできる --> チームで開発環境を統一しやすい
 - Dockerfileやcompose.yamlを汚さずにツールのインストールや設定変更ができる
+- [GitHub Codespaces](https://github.com/features/codespaces)を使用する際にDev Containeersを選択することで，環境構築を自動化できる。
 
 ---
 
@@ -218,20 +219,60 @@ Extension IDを.devcontainer/devcontainer.jsonに記載する。
 
 ---
 
-### portを開放する設定比較
+### portを開放する設定のベストプラクティス
 
 devcontainer.jsonでportを開放する方法は3つある。
 
 - `addPort`は非推奨。`forwardPorts`を使う方が良い。
   > In most cases, we recommend using the new forwardPorts property. [^6]
 - `forwardPorts`を使うことで，コンテナのポートをローカルにフォワードすることができる。
-- `portAttribute`を使うことで，portに説明をつけることができる。
+- `portAttributes`を使うことで，portに関連する追加属性を設定することができる。
+
+> [!NOTE]
+> 2025年3月に動作検証したところ，ローカルのVS CodeではportAttributeのみでportフォワーディングが可能だった。
+> しかし，[GitHub Codespaces](https://github.com/features/codespaces)を使う場合には`portAttributes`のみではportフォワーディングがされなかった。
+>
+> `portForwards`のみ
+> ![portAttributesのみ](./assets/portForward_only.png)
+> `forwardPorts`も追加すると自動的にportフォワーディングされる
+> ![portAttributesとforwardPorts](./assets/forwardPorts.png)
+> 実際に公式ドキュメントには`forwardPorts`のみしか記載がなく[^7]，`forwardPorts`と`portAttributes`を併用することが推奨される。
+
+```json
+{
+  "name": "dev-container-test", // 任意の値
+  "dockerComposeFile": [
+    "../compose.yaml",
+    "compose.yaml"
+  ],
+  "service": "react-app", // compose.yamlのサービス名
+  "workspaceFolder": "/app",
+  "forwardPorts" : [5173, 5173],
+  "portsAttributes": {
+    "5173:5173": {
+      "label": "Vite application",
+      "protocol": "http",
+      "onAutoForward": "notify"
+    }
+  },
+  "postStartCommand": "cd react-app/ && yarn dev --host 0.0.0.0",
+}
+```
 
 ---
 
-### サービスをビルドなしで再起動可能にする
+### サービスをコンテナビルドなしで再起動可能にする
 
-Dev Containersにはコンテナのイベントをトリガーしてコマンドを実行する機能がある。[^7]
+Dev Containersを起動しつづけるために永続コマンドが必要であるが，このサービスの再起動が必要になった場合には，コンテナの再ビルドが必要である。
+
+```Dockerfile
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+しかし，これは非効率的なので，Dev Containersにはコンテナのイベントをトリガーしてコマンドを実行する機能[^8]を使い，サービスの再起動を可能にすることができる。
+
+- `OverrideCommand`を`true`に設定することで，コンテナを永続化することができる[^1]。
+- `postStartCommand`でサービスを起動することで，コンテナの永続化にサービスが使われなくなり，再起動が可能になる。
 
 ```json
 {
@@ -242,23 +283,19 @@ Dev Containersにはコンテナのイベントをトリガーしてコマンド
   ],
   "service": "react-app",
   "workspaceFolder": "/app",
-  "overrideCommand": true, // コンテナを起動Gしたままにする DockerfileのCMDで永続するコマンドを実行しているなら不要
-  // rvest.vscode-prettier-eslintに使うパッケージをinstall
-  "postCreateCommand": "yarn add -D prettier@^3.1.0 eslint@^8.52.0 prettier-eslint@^16.1.2 @typescript-eslint/parser@^5.0.1 typescript@^4.4.4",
-  "postStartCommand": ["echo", "Hello, DevContainer"], // DevContainer起動時
-  "postAttachCommand": ["echo", "Hello, DevContainer"], // DevContainerに既存コンテナをattach時
-  "initializeCommand": ["echo", "Starting DevContainer..."], // DevContainerのビルド前，実行前にローカルで実行されるコマンド
+  "overrideCommand": true, 
+  "forwardPorts" : [80, 80],
+  "postStartCommand": "nginx"
+}
 ```
-
-#### installスクリプトを使う
-
-必要そうなパッケージをまとめた[install-pkg.sh](./install-pkg.sh)を作成し，postCreateCommandで実行する。
 
 ---
 
 ### ディレクトリのマウント
 
-- ファイル単体でのマウントはできないぽい。設定ファイルとかは前述のdotfilesを使って共有する。
+- ファイル単体でのマウントは現状できない。
+- 設定ファイルは前述のdotfilesを使って共有するのが良い。
+- クレデンシャルを含む情報などはGitHubにアップロードできないため，dotfiles経由ではなく，マウント機能を使ってDev Containersに持ち込むのが良い。
 
 ```json
 {
@@ -277,6 +314,33 @@ Dev Containersにはコンテナのイベントをトリガーしてコマンド
 
 ---
 
+### Dockerfileを汚さずにDev Containersにツールをインストールする
+
+#### featursを使ってツールをインストールする
+
+[features一覧](https://containers.dev/features)から使用可能なツールを探すことができる。
+
+devcontainer.jsonにfeaturesを記載することで，ツールをインストールすることができる。
+
+```json
+
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/guiyomh/features/vim:0": {},
+    "ghcr.io/dhoeric/features/hadolint:1": {}
+  },
+```
+
+#### featuresでサポートされていないツールをインストールする方法
+
+必要そうなパッケージをまとめたshell scriptを作成し，これを`postCreateCommand`で実行することでツールをインストールすることができる。
+
+```json
+  "postCreateCommand": "install-pkg.sh",
+```
+
+---
+
 ### References
 
 [^1]: <https://containers.dev/implementors/json_reference/#general-properties>
@@ -290,4 +354,7 @@ Dev Containersにはコンテナのイベントをトリガーしてコマンド
 [^5]: <https://code.visualstudio.com/docs/devcontainers/containers#_personalizing-with-dotfile-repositories>
 
 [^6]: <https://containers.dev/implementors/json_reference/#image-specific>
-<https://containers.dev/implementors/json_reference/#lifecycle-scripts>
+
+[^7]: <https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace#automatically-forwarding-a-port>
+
+[^8]: <https://containers.dev/implementors/json_reference/#lifecycle-scripts>

@@ -7,7 +7,7 @@
   "service": "react-app", // compose.yamlのサービス名
   "workspaceFolder": "/app",
   "overrideCommand": true, // NOTE: DockerfileのCMDで永続コマンド(e.g. nginx)等を指定可能な場合でも，こちらのオプションを使い，postStartCommandでサービスを起動すべき。なぜなら，DockerfileのCMDの永続コマンドを再起動するにはコンテナの再ビルドが必要なため，非効率。
-  // "forwardPorts" : [5173, 5173],
+  "forwardPorts" : [5173, 5173],
   "portsAttributes": {
     "5173:5173": {
       "label": "Vite application",
@@ -16,17 +16,19 @@
     }
   },
   "postStartCommand": "cd react-app/ && yarn dev --host 0.0.0.0",
+  // featuresを使ってinstallするツール
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/guiyomh/features/vim:0": {},
+    "ghcr.io/dhoeric/features/hadolint:1": {}
+  },
   "mounts": [
     "source=~/.aws,target=/home/node/.aws,type=bind",
   ],
-  // rvest.vscode-prettier-eslintに使うパッケージと開発用パッケージをinstall
-  "postCreateCommand": "/app/.devcontainer/install-pkg.sh",
-  "postAttachCommand": "echo Attach, DevContainer", // DevContainerに既存コンテナをattach時
-  "initializeCommand": ["echo", "Starting DevContainer..."], // DevContainerのビルド前，実行前にローカルで実行されるコマンド
   "customizations": {
     "vscode": {
       "extensions": [
-	"esbenp.prettier-vscode",
+        "esbenp.prettier-vscode",
         "formulahendry.auto-rename-tag",
         "DavidAnson.vscode-markdownlint",
         "exiasr.hadolint",
