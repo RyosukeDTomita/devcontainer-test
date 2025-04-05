@@ -29,12 +29,14 @@
     "vscode": {
       "extensions": [
         "esbenp.prettier-vscode",
+        "Orta.vscode-jest",
         "formulahendry.auto-rename-tag",
         "DavidAnson.vscode-markdownlint",
         "exiasr.hadolint",
         "oderwat.indent-rainbow",
-        "Orta.vscode-jest",
-        "ionutvmi.path-autocomplete"
+        "ionutvmi.path-autocomplete",
+        "mushan.vscode-paste-image",
+        "streetsidesoftware.code-spell-checker",
       ]
     }
   }

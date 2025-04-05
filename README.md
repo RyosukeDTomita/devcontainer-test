@@ -197,7 +197,7 @@ Dev Containerの環境では，`REMOTE_CONTAINERS=true`が環境変数に定義�
 
 #### Extensionsを追加する方法
 
-Extension IDを.devcontainer/devcontainer.jsonに記載する。
+Extension IDを.devcontainer/devcontainer.jsonに記載することで追加できる。
 ![extension id](./assets/extensionid.png)
 
 ```json
@@ -205,6 +205,11 @@ Extension IDを.devcontainer/devcontainer.jsonに記載する。
     "formulahendry.auto-rename-tag",
   ],
 ```
+
+:::note info
+Add to devcontainer.jsonを選択できるのでこれを使うと楽
+:::
+
 
 #### DevContainerに自分だけが使用するExtensionsを持ち込む
 
